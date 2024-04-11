@@ -1,0 +1,28 @@
+﻿<Window x:Class="LineDetection.OpenedImage"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LineDetection"
+        mc:Ignorable="d"
+        Title="XXX - ERROR - XXX" Height="450" Width="800">
+    <Grid>
+        <Menu>
+            <MenuItem Name="mSave" Header="Save..." Click="mSave_Click"/>
+            <MenuItem Name="mClone" Header="Clone" Click="mClone_Click"/>
+            <MenuItem Header="Convert...">
+                <MenuItem Name="mGray" Header="to Gray" Click="mGray_Click"/>
+                <MenuItem Name="mBgr" Header="to Bgr" Click="mBgr_Click"/>
+            </MenuItem>
+            <MenuItem Name="mHistogram" Header="Histogram" Click="mHistogram_Click"/>
+            <MenuItem Header="Edge detection...">
+                <MenuItem Name="mCanny" Header="Canny" Click="Canny_Click"/>
+                <MenuItem Name="mSobel" Header="Sobel" Click="mSobel_Click"/>
+                <MenuItem Name="mPrewitt" Header="Prewitt" Click="mPrewitt_Click"/>
+                <MenuItem Name="mLaplacian" Header="Laplacian" Click="mLaplacian_Click"/>
+            </MenuItem>
+            <MenuItem Name="mHough" Header="Hough" Click="mHough_Click"/>
+        </Menu>
+        <Image Name="imageCanvas" Margin="30"/>
+    </Grid>
+</Window>
