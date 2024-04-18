@@ -162,7 +162,14 @@ namespace LineDetection
         #endregion
 
         #region Hough
-        public Image<Bgra, byte> Hough()
+
+        public Image<Gray, byte> Sobel(Bitmap src)
+        {
+            //TODO
+            return null;
+        }
+
+        public Image<Bgra, byte> Hough(int threshold=100)
         {
             Mat grayImageM = _grayImage.Mat;
             Mat outputM = grayImageM.Clone();

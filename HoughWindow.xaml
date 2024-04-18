@@ -19,13 +19,16 @@
 
         <Grid Name="leftsideMenuGrid" Height="35" Margin="10,10,16,0" VerticalAlignment="Center" HorizontalAlignment="Left">
             <Label x:Name="LbTr" Content="Threshold:" Grid.Column="0" VerticalAlignment="Center" Width="75" Margin="0,0,230,0"/>
-            <TextBox x:Name="TbTr" Text="..." Grid.Row="0" Grid.Column="0" Margin="65,4,120,4" Width="100"/>
-            <Button x:Name="BtnStart" Content="Start" Grid.Column="0" VerticalAlignment="Center" Height="35" Width="60" Margin="230,0,10,0"/>
+            <TextBox x:Name="TbTr" Grid.Row="0" Grid.Column="0" Margin="65,4,120,4" Width="100" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+            <Button x:Name="BtnStart" Click="BtnStart_Click" Content="Start" Grid.Column="0" VerticalAlignment="Center" Height="35" Width="60" Margin="230,0,10,0"/>
         </Grid>
         
         <Grid Name="rightsideMenuGrid" Grid.Column="2" Margin="50,10,10,0" VerticalAlignment="Center" HorizontalAlignment="Right">
-            <Button x:Name="BtnSaveAcum" Content="Save acumulators" VerticalAlignment="Center" Height="35" Width="120" Margin="0,0,130,0"/>
+            <!--TODO-->
+            <Button x:Name="BtnSaveAcum" Content="Save acumulators" VerticalAlignment="Center" Height="35" Width="120" Margin="0,0,130,0"/> 
             <Button x:Name="BtnSaveImg" Content="Save image" VerticalAlignment="Center" Height="35" Width="120" Margin="130,0,0,0"/>
+            <!--TODO-->
+
         </Grid>
 
         <Border BorderThickness="1" BorderBrush="Black" Grid.Row="1" Grid.Column="0" Margin="15,15,15,50">

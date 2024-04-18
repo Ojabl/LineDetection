@@ -1,5 +1,4 @@
 ﻿using Emgu.CV;
-using Emgu.CV.Structure;
 using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Media.Imaging;
