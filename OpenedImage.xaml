@@ -16,7 +16,7 @@
             </MenuItem>
             <MenuItem Name="mHistogram" Header="Histogram" Click="mHistogram_Click"/>
             <MenuItem Header="Edge detection...">
-                <MenuItem Name="mCanny" Header="Canny" Click="Canny_Click"/>
+                <MenuItem Name="mCanny" Header="Canny" Click="mCanny_Click"/>
                 <MenuItem Name="mSobel" Header="Sobel" Click="mSobel_Click"/>
                 <MenuItem Name="mPrewitt" Header="Prewitt" Click="mPrewitt_Click"/>
                 <MenuItem Name="mLaplacian" Header="Laplacian" Click="mLaplacian_Click"/>

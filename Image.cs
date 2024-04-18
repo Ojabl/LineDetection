@@ -167,13 +167,13 @@ namespace LineDetection
             Mat grayImageM = _grayImage.Mat;
             Mat outputM = grayImageM.Clone();
 
-            //LineSegment2D[] lines = CvInvoke.HoughLinesP();
+            LineSegment2D[] lines = CvInvoke.HoughLinesP(grayImageM, 1, 1, 100);
             CvInvoke.HoughLines(grayImageM, outputM, 1, Math.PI / 180, 100);
             
-            //foreach(LineSegment2D line in lines)
-            //{
-            //    CvInvoke.Line(outputM, line.P1, line.P2, new MCvScalar(2));
-            //}
+            foreach(LineSegment2D line in lines)
+            {
+                CvInvoke.Line(outputM, line.P1, line.P2, new MCvScalar(2));
+            }
 
             Image<Bgra, byte> outputImage = outputM.ToImage<Bgra, byte>();
 

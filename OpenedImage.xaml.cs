@@ -76,7 +76,7 @@ namespace LineDetection
 
         #region Edge detection
 
-        private void Canny_Click(object sender, RoutedEventArgs e)
+        private void mCanny_Click(object sender, RoutedEventArgs e)
         {
             this.imageCanvas.Source = _Image.ApplyCannyEdgeDetection().ToBitmapSource();
         }
@@ -101,14 +101,17 @@ namespace LineDetection
         #region Hough
         private void mHough_Click(object sender, RoutedEventArgs e)
         {
-            if (_Image.isGray)
-            {
-                this.imageCanvas.Source = _Image.Hough().ToBitmapSource();
-            }
-            else
-            {
-                MessageBox.Show("Obraz musi być szaroodcieniowy\nPrzekonwertuj obraz na jednokanałowy", "Błąd", MessageBoxButton.OK);
-            }
+            HoughWindow houghWindow = new HoughWindow(_Image);
+            houghWindow.Show();
+
+            //if (_Image.isGray)
+            //{
+            //    this.imageCanvas.Source = _Image.Hough().ToBitmapSource();
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Obraz musi być szaroodcieniowy\nPrzekonwertuj obraz na jednokanałowy", "Błąd", MessageBoxButton.OK);
+            //}
         }
 
         #endregion
