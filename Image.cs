@@ -163,28 +163,63 @@ namespace LineDetection
 
         #region Hough
 
-        public Image<Gray, byte> Sobel(Bitmap src)
+        public void GrayScale(Bitmap img)
         {
-            //TODO
-            return null;
+            for (int y = 0; y < img.Height; y++)
+                for (int x = 0; x < img.Width; x++)
+                {
+                    Color c = img.GetPixel(x, y);
+                    
+                    // wzór na skalę szarości
+                    int px = (int)((c.R * 0.3) + (c.G * 0.59) + (c.B * 0.11));
+                    img.SetPixel(x, y, Color.FromArgb(c.A, px, px, px));
+                }
         }
 
-        public Image<Bgra, byte> Hough(int threshold=100)
+        public Bitmap Sobel(Bitmap src)
         {
-            Mat grayImageM = _grayImage.Mat;
-            Mat outputM = grayImageM.Clone();
-
-            LineSegment2D[] lines = CvInvoke.HoughLinesP(grayImageM, 1, 1, 100);
-            CvInvoke.HoughLines(grayImageM, outputM, 1, Math.PI / 180, 100);
+            Bitmap dst = new Bitmap(src.Width, src.Height);
             
-            foreach(LineSegment2D line in lines)
-            {
-                CvInvoke.Line(outputM, line.P1, line.P2, new MCvScalar(2));
-            }
+            // Operator Sobela
+            int[,] dx = { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } };
+            int[,] dy = { { 1, 2, 1 }, { 0, 0, 0 }, { -1, -2, -1 } };
 
-            Image<Bgra, byte> outputImage = outputM.ToImage<Bgra, byte>();
+            // Konwertuj na skalę szarości 
+            GrayScale(src);
 
-            return outputImage;
+            int sumX, sumY, sum;
+            // Przechodzimy przez cały obraz
+            for (int y = 0; y < src.Height - 1; y++)
+                for (int x = 0; x < src.Width - 1; x++)
+                {
+                    sumX = sumY = 0;
+                    if (y == 0 || y == src.Height - 1) sum = 0;
+                    else if (x == 0 || x == src.Width - 1) sum = 0;
+                    else
+                    {
+                        // Cykl splotu za pomocą operatora Sobela
+                        for (int i = -1; i < 2; i++)
+                            for (int j = -1; j < 2; j++)
+                            {
+                                // Zapisuję wartość piksela
+                                int c = src.GetPixel(x + i, y + j).R;
+                                // Znajdź sumę iloczynów piksela przez wartość z macierzy X
+                                sumX += c * dx[i + 1, j + 1];
+                                // i suma iloczynów piksela przez wartość z macierzy Y
+                                sumY += c * dy[i + 1, j + 1];
+                            }
+                        // Znajdź przybliżoną wartość gradientu
+                        // sum = Math.Abs(sumX) + Math.Abs(sumY);
+                        sum = (int)Math.Sqrt(Math.Pow(sumX, 2) + Math.Pow(sumY, 2));
+                    }
+                    // Przeprowadź normalizację
+                    if (sum > 255) sum = 255;
+                    else if (sum < 0) sum = 0;
+                    // Zapisz wynik na obrazie wejściowym
+                    dst.SetPixel(x, y, Color.FromArgb(255, sum, sum, sum));
+                }
+            //Binarization(dst);
+            return dst;
         }
 
         #endregion
@@ -193,6 +228,8 @@ namespace LineDetection
         public string GetPath() { return _bgrImagePath; }
 
         public Image<Bgr, byte> GetBgrImage() { return _bgrImage; }
+
+        public Bitmap GetBitmap() { return _bgrImage.ToBitmap(); }
 
         #endregion
     }

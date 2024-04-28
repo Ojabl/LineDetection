@@ -1,22 +1,25 @@
 ﻿using Emgu.CV;
+using Emgu.CV.Structure;
 using System;
 using System.CodeDom;
 using System.Drawing;
 using System.Windows;
+using System.Windows.Media.Effects;
 
 namespace LineDetection
 {
     public partial class HoughWindow : Window
     {
         Image _Image { get; set; }
-        Image BinarizedSobelImg { get; set; }
+        Bitmap BinarizedSobelBitmap { get; set; }
+        int tr = 0;
 
         public HoughWindow(Image inputImage)
         {
             InitializeComponent();
 
             _Image = inputImage;
-            BinarizedSobelImg = new Image(_Image.Sobel(new Bitmap(_Image.GetPath()))); //TODO overload for Image constructor
+            BinarizedSobelBitmap = _Image.Sobel(_Image.GetBitmap());
             
             Title = _Image.GetPath();
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -28,9 +31,9 @@ namespace LineDetection
         {
             if (IsThresholdValid())
             {
-                ImgAccum.Source = Image.HoughTransform(new Bitmap(_Image.GetPath()));
-                ImgResult.Source =  ;
-                
+                tr = int.Parse(TbTr.Text);
+
+                //ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr);
             }
         }
 
