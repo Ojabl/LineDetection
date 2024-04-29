@@ -37,12 +37,12 @@
         <Label Name="LbSource" Content="Source" HorizontalContentAlignment="Left" Grid.Row="1" Grid.Column="0" Width="75" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,0,0,15"/>
 
         <Border BorderThickness="1" BorderBrush="Black" Grid.Row="1" Grid.Column="1" Margin="15,15,15,50">
-            <Image Name="ImgAccum" Grid.Row="1" Grid.Column="1"/>
+            <Image Name="ImgAccum" Grid.Row="1" Grid.Column="1" Stretch="Fill"/>
         </Border>
         <Label Name="LbAccum" Content="Accumulators" Grid.Row="1" Grid.Column="1" Width="90" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,0,0,15"/>
 
         <Border BorderThickness="1" BorderBrush="Black" Grid.Row="1" Grid.Column="2" Margin="15,15,15,50">
-            <Image Name="ImgResult" Grid.Row="1" Grid.Column="2"/>
+            <Image Name="ImgResult" Grid.Row="1" Grid.Column="2" Stretch="Fill"/>
         </Border>
         <Label Name="LbResult" Content="Result" Grid.Row="1" Grid.Column="2" Width="75" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,0,0,15"/>
         

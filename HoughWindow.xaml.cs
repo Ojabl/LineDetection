@@ -33,7 +33,7 @@ namespace LineDetection
             {
                 tr = int.Parse(TbTr.Text);
 
-                //ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr);
+                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
             }
         }
 

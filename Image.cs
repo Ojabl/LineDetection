@@ -7,8 +7,10 @@ using OpenCvSharp;
 using ScottPlot;
 using System;
 using System.Drawing;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using Mat = Emgu.CV.Mat;
+using Point = System.Drawing.Point;
 
 namespace LineDetection
 {
@@ -163,18 +165,7 @@ namespace LineDetection
 
         #region Hough
 
-        public void GrayScale(Bitmap img)
-        {
-            for (int y = 0; y < img.Height; y++)
-                for (int x = 0; x < img.Width; x++)
-                {
-                    Color c = img.GetPixel(x, y);
-                    
-                    // wzór na skalę szarości
-                    int px = (int)((c.R * 0.3) + (c.G * 0.59) + (c.B * 0.11));
-                    img.SetPixel(x, y, Color.FromArgb(c.A, px, px, px));
-                }
-        }
+        public int[,] accum;
 
         public Bitmap Sobel(Bitmap src)
         {
@@ -220,6 +211,86 @@ namespace LineDetection
                 }
             //Binarization(dst);
             return dst;
+        }
+
+        public void GrayScale(Bitmap img)
+        {
+            for (int y = 0; y < img.Height; y++)
+                for (int x = 0; x < img.Width; x++)
+                {
+                    Color c = img.GetPixel(x, y);
+
+                    // wzór na skalę szarości
+                    int px = (int)((c.R * 0.3) + (c.G * 0.59) + (c.B * 0.11));
+                    img.SetPixel(x, y, Color.FromArgb(c.A, px, px, px));
+                }
+        }
+
+        public Bitmap HoughTransform(Bitmap img, int tr)
+        {
+            Point Size = new Point();
+            int mang = 180;
+
+            Size.Y = (int)Math.Round(Math.Sqrt(Math.Pow(img.Width, 2) + Math.Pow(img.Height, 2)));
+            Size.X = 180;
+            accum = new int[(int)Size.Y, mang];
+
+            double dt = Math.PI / 180.0;
+            for(int y = 0; y < img.Height; y++)
+                for(int x = 0; x < img.Width; x++)
+                    if(img.GetPixel(x,y).R == 255)
+                    {
+                        for(int i = 0; i < mang; i++)
+                        {
+                            int row = (int)Math.Round(x * Math.Cos(dt * (double)i) + y * Math.Sin(dt * (double)i));
+                            if (row < Size.Y && row > 0) accum[row, i]++;
+                        }
+                    }
+
+            // Znalezienie maksimów
+            int amax = AccumMax(Size); 
+
+            // Normalizacja
+            if(amax != 0)
+            {
+                img = new Bitmap(Size.X, Size.Y);
+                // Normalizacja w akumulatorach
+                Normalize(Size, amax);
+                for(int y = 0; y < Size.Y; y++)
+                {
+                    for(int x = 0; x < Size.X; x++)
+                    {
+                        int c = accum[y, x];
+                        img.SetPixel(x, y, Color.FromArgb(c, c, c));
+                    }
+                }
+            }
+            return img;
+        }
+
+        public int AccumMax(Point Size)
+        {
+            int amax = 0;
+            for(int y = 0; y < Size.Y; y++)
+            {
+                for(int x = 0; x < Size.X; x++)
+                {
+                    if (accum[y, x] > amax) amax = accum[y, x];
+                }
+            }
+            return amax;
+        }
+
+        public void Normalize(Point Size, int amax)
+        {
+            for(int y = 0; y < Size.Y; y++)
+            {
+                for(int x = 0; x < Size.X; x++)
+                {
+                    int c = (int)(((double)accum[y, x] / (double)amax) * 255.0);
+                    accum[y, x] = c;
+                }
+            }
         }
 
         #endregion
