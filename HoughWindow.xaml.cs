@@ -3,6 +3,8 @@ using Emgu.CV.Structure;
 using System;
 using System.CodeDom;
 using System.Drawing;
+using Point = System.Drawing.Point;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Media.Effects;
 
@@ -31,9 +33,31 @@ namespace LineDetection
         {
             if (IsThresholdValid())
             {
-                //tr = int.Parse(TbTr.Text);
+                if(TbTr.Text == "Auto") tr = 150; //auto threshold function, manually inserted tr value works well
 
                 ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
+
+                Bitmap img = _Image.GetBitmap();
+                Graphics g = Graphics.FromImage(img);
+                Pen pen = new Pen(Color.Red, 3);
+
+                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2))); //is _Image.GetBgrImage().Width working well?
+                Point size = new Point(180, dp);
+
+                while (true)
+                {
+                    Point pt = _Image.SearchLine(size, tr);
+                    if(pt.X == -1) break;
+                    if(pt.X > 0)
+                    {
+                        int y1 = (int)((-Math.Cos(pt.X * (Math.PI / 180)) / Math.Sin(pt.X * (Math.PI / 180))) * 0 + (double)pt.Y / Math.Sin(pt.X * (Math.PI / 180)));
+
+                        int y2 = (int)((-Math.Cos(pt.X * (Math.PI / 180)) / Math.Sin(pt.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)pt.Y / Math.Sin(pt.X * (Math.PI / 180)));
+
+                        g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
+                    }
+                }
+                ImgResult.Source = img.ToMat().ToBitmapSource();
             }
         }
 
