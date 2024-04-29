@@ -19,7 +19,7 @@
 
         <Grid Name="leftsideMenuGrid" Height="35" Margin="10,10,16,0" VerticalAlignment="Center" HorizontalAlignment="Left">
             <Label x:Name="LbTr" Content="Threshold:" Grid.Column="0" VerticalAlignment="Center" Width="75" Margin="0,0,230,0"/>
-            <TextBox x:Name="TbTr" Grid.Row="0" Grid.Column="0" Margin="65,4,120,4" Width="100" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+            <TextBox x:Name="TbTr" Text="Auto" Grid.Row="0" Grid.Column="0" Margin="65,4,120,4" Width="100" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             <Button x:Name="BtnStart" Click="BtnStart_Click" Content="Start" Grid.Column="0" VerticalAlignment="Center" Height="35" Width="60" Margin="230,0,10,0"/>
         </Grid>
         

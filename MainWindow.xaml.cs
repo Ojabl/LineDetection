@@ -10,9 +10,10 @@ namespace LineDetection
         public MainWindow()
         {
             InitializeComponent();
+            WindowStartupLocation = WindowStartupLocation.CenterOwner;
         }
 
-        private void mOpen_Click(object sender, RoutedEventArgs e)
+        private void mOpenEdgeDetection_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "Image Files (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp";
@@ -22,6 +23,19 @@ namespace LineDetection
                 _Image = new Image(ofd.FileName);
                 OpenedImage openedImageWindow = new OpenedImage(_Image);
                 openedImageWindow.Show();
+            }
+        }
+
+        private void mOpenHough_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Image Files (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp";
+
+            if (ofd.ShowDialog() == true)
+            {
+                _Image = new Image(ofd.FileName);
+                HoughWindow houghWindow = new HoughWindow(_Image);
+                houghWindow.Show();
             }
         }
 
