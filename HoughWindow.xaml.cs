@@ -33,7 +33,7 @@ namespace LineDetection
         {
             if (IsThresholdValid())
             {
-                if(TbTr.Text == "Auto") tr = 150; //auto threshold function, manually inserted tr value works well
+                if(TbTr.Text == "Auto") tr = 150; // TODO: auto threshold function, manually inserted tr value works well
 
                 ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
 

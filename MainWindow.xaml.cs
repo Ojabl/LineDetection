@@ -34,6 +34,13 @@ namespace LineDetection
             if (ofd.ShowDialog() == true)
             {
                 _Image = new Image(ofd.FileName);
+
+                if (_Image.GetBgrImage().Width > 1920 || _Image.GetBgrImage().Height > 1080)
+                {
+                    MessageBoxResult result = WarningMessage("It is unadvised to process pictures which resolution is bigger than 1920x1080 due to image processing time.\nDo you want to continue?");
+                    if (result == MessageBoxResult.No) return;
+                }
+
                 HoughWindow houghWindow = new HoughWindow(_Image);
                 houghWindow.Show();
             }
@@ -47,5 +54,15 @@ namespace LineDetection
                                         Promotor: dr. inż. Łukasz Roszkowiak";
             MessageBox.Show(messageBoxContent, "Info", MessageBoxButton.OK);
         }
+
+        #region Utils
+
+        public MessageBoxResult WarningMessage(string message)
+        {
+            MessageBoxResult choice = MessageBox.Show(message, "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            return choice;
+        }
+
+        #endregion
     }
 }
