@@ -7,6 +7,8 @@ using Point = System.Drawing.Point;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Media.Effects;
+using Microsoft.Win32;
+using System.Windows.Media.Imaging;
 
 namespace LineDetection
 {
@@ -125,6 +127,44 @@ namespace LineDetection
         {
             MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             return;
+        }
+
+        #endregion
+
+        #region save
+
+        private void BtnSaveAcum_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "Image files (*.png;*.jpeg;*.jpg)|*.png;*.jpeg;*.jpg";
+            if(sfd.ShowDialog() == true)
+            {
+                BitmapSource accumImage = (BitmapSource)ImgAccum.Source;
+                BitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(accumImage));
+
+                using(var fileStream = new System.IO.FileStream(sfd.FileName, System.IO.FileMode.Create))
+                {
+                    encoder.Save(fileStream);
+                }
+            }
+        }
+
+        private void BtnSaveImg_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "Image files (*.png;*.jpeg;*.jpg)|*.png;*.jpeg;*.jpg";
+            if (sfd.ShowDialog() == true)
+            {
+                BitmapSource accumImage = (BitmapSource)ImgResult.Source;
+                BitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(accumImage));
+
+                using (var fileStream = new System.IO.FileStream(sfd.FileName, System.IO.FileMode.Create))
+                {
+                    encoder.Save(fileStream);
+                }
+            }
         }
 
         #endregion

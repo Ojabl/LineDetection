@@ -102,15 +102,6 @@ namespace LineDetection
         {
             HoughWindow houghWindow = new HoughWindow(_Image);
             houghWindow.Show();
-
-            //if (_Image.isGray)
-            //{
-            //    this.imageCanvas.Source = _Image.Hough().ToBitmapSource();
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Obraz musi być szaroodcieniowy\nPrzekonwertuj obraz na jednokanałowy", "Błąd", MessageBoxButton.OK);
-            //}
         }
 
         #endregion
