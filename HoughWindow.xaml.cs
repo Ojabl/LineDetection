@@ -33,15 +33,15 @@ namespace LineDetection
         {
             if (IsThresholdValid())
             {
-                if(TbTr.Text == "Auto") tr = 150; // TODO: auto threshold function, manually inserted tr value works well
-
                 ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
 
                 Bitmap img = _Image.GetBitmap();
                 Graphics g = Graphics.FromImage(img);
                 Pen pen = new Pen(Color.Red, 3);
 
-                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2))); //is _Image.GetBgrImage().Width working well?
+                if (TbTr.Text == "Auto") tr = AutoThreshold(img, g, pen); // TODO: auto threshold function
+
+                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
                 Point size = new Point(180, dp);
 
                 while (true)
@@ -93,6 +93,32 @@ namespace LineDetection
                 return false;
             }
             return true;
+        }
+
+        public int AutoThreshold(Bitmap img, Graphics g, Pen pen)
+        {
+            int[] threshGroup = { 300, 275, 250, 225, 200, 175, 150, 125, 100, 75, 50 };
+
+            for(int i = 0; i < threshGroup.Length + 1; i++)
+            {
+                tr = threshGroup[i];
+                int lines = 0;
+
+                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
+                Point size = new Point(180, dp);
+
+                while (true)
+                {
+                    Point pt = _Image.SearchLineTest(size, tr);
+                    if (pt.X == -1) break;
+                    if (pt.X > 0)
+                    {
+                        lines++;
+                    }
+                }
+                if (lines > 10) return tr;
+            }
+            return 0;
         }
 
         public void ErrorMessage(string message)

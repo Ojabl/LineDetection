@@ -293,15 +293,14 @@ namespace LineDetection
             }
         }
 
-        public Point SearchLine(Point size, int tr) //maybe delete sum?
+        public Point SearchLine(Point size, int tr)
         {
-            int sum = 0, max = 0;
+            int max = 0;
             Point pt = new Point(0,0);
 
             for(int y = 0; y < size.Y; y++)
                 for(int x = 0; x < size.X; x++)
                 {
-                    sum = 0;
                     if (max < accum[y, x])
                     {
                         max = accum[y, x];
@@ -312,6 +311,27 @@ namespace LineDetection
 
             if (max < tr) pt.X = -1;
             else accum[pt.Y, pt.X] = 0;
+
+            return pt;
+        }
+
+        public Point SearchLineTest(Point size, int tr)
+        {
+            int max = 0;
+            Point pt = new Point(0, 0);
+
+            for (int y = 0; y < size.Y; y++)
+                for (int x = 0; x < size.X; x++)
+                {
+                    if (max < accum[y, x])
+                    {
+                        max = accum[y, x];
+                        pt.X = x;
+                        pt.Y = y;
+                    }
+                }
+
+            if (max >= tr) accum[pt.Y, pt.X] = 0;
 
             return pt;
         }
