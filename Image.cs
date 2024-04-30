@@ -315,27 +315,6 @@ namespace LineDetection
             return pt;
         }
 
-        public Point SearchLineTest(Point size, int tr)
-        {
-            int max = 0;
-            Point pt = new Point(0, 0);
-
-            for (int y = 0; y < size.Y; y++)
-                for (int x = 0; x < size.X; x++)
-                {
-                    if (max < accum[y, x])
-                    {
-                        max = accum[y, x];
-                        pt.X = x;
-                        pt.Y = y;
-                    }
-                }
-
-            if (max >= tr) accum[pt.Y, pt.X] = 0;
-
-            return pt;
-        }
-
         #endregion
 
         #region get/set

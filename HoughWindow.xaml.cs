@@ -41,7 +41,11 @@ namespace LineDetection
                 Graphics g = Graphics.FromImage(img);
                 Pen pen = new Pen(Color.Red, 3);
 
-                if (TbTr.Text == "Auto") tr = AutoThreshold(img, g, pen); // TODO: auto threshold function
+                if (TbTr.Text == "Auto")
+                {
+                    tr = AutoThreshold(img, g, pen);
+                    return;
+                }
 
                 int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
                 Point size = new Point(180, dp);
@@ -111,15 +115,20 @@ namespace LineDetection
 
                 while (true)
                 {
-                    Point pt = _Image.SearchLineTest(size, tr);
-                    if (pt.X == -1) break;
-                    if (pt.X > 0)
+                    Point testpt = _Image.SearchLine(size, tr);
+                    if (testpt.X == -1) break;
+                    if (testpt.X > 0)
                     {
                         lines++;
                     }
                 }
-                if (lines > 10) return tr;
+                if (lines > 10)
+                {
+                    TbTr.Text = tr.ToString();
+                    return tr;
+                };
             }
+            ErrorMessage("No lines found!");
             return 0;
         }
 
