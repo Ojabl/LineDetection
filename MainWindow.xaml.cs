@@ -48,11 +48,13 @@ namespace LineDetection
 
         private void mInfo_Click(object sender, RoutedEventArgs e) //TODO
         {
-            string messageBoxContent = @"Praca inżynierska - Odnajdywanie Linii na cyfrowych obrazach mikroskopowych
+            //string messageBoxContent = @"Praca inżynierska - Odnajdywanie Linii na cyfrowych obrazach mikroskopowych
 
-                                        Autor: Oskar Jabłoński
-                                        Promotor: dr. inż. Łukasz Roszkowiak";
-            MessageBox.Show(messageBoxContent, "Info", MessageBoxButton.OK);
+            //                                        Autor: Oskar Jabłoński
+            //                                      Promotor: dr. inż. Łukasz Roszkowiak";
+            //        MessageBox.Show(messageBoxContent, "Info", MessageBoxButton.OK);
+            InfoWindow info = new InfoWindow();
+            info.Show();
         }
 
         #region Utils

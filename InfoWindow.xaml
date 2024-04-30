@@ -1,0 +1,19 @@
+﻿<Window x:Class="LineDetection.InfoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LineDetection"
+        mc:Ignorable="d"
+        Title="Info" Height="250" Width="350">
+    <Grid>
+        <TextBlock Margin="20" TextAlignment="Center">
+            Praca inżynierska<LineBreak/><LineBreak/>
+            Odnajdywanie Linii <LineBreak/>
+            na cyfrowych obrazach mikroskopowych<LineBreak/><LineBreak/>
+            Autor: Oskar Jabłoński <LineBreak/>
+            Promotor: dr. inż. Łukasz Roszkowiak
+        </TextBlock>
+        <Button Name="btnClose" Content="Close" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,20" Click="btnClose_Click" Padding="5"/>
+    </Grid>
+</Window>
