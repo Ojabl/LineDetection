@@ -7,6 +7,7 @@ namespace LineDetection
 {
     public partial class OpenedImage : Window
     {
+        LineDetectionUtils utils = new LineDetectionUtils();
         Image _Image { get; set; }
 
         public OpenedImage(Image inputImage)
@@ -52,7 +53,7 @@ namespace LineDetection
             }
             else
             {
-                MessageBox.Show("aby wyświetlić histogram, obraz musi być szaroodcieniowy", "Błąd", MessageBoxButton.OK);
+                utils.ErrorMessage("To display a histogram, the image must be grayscale");
             }
         }
 
@@ -102,10 +103,9 @@ namespace LineDetection
         {
             HoughWindow houghWindow = new HoughWindow(_Image);
             houghWindow.Show();
+            Close();
         }
 
         #endregion
-
-        
     }
 }

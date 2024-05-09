@@ -1,23 +1,20 @@
 ﻿using Emgu.CV;
-using Emgu.CV.Structure;
-using System;
-using System.CodeDom;
-using System.Drawing;
-using Point = System.Drawing.Point;
-using System.Security.Cryptography.X509Certificates;
-using System.Windows;
-using System.Windows.Media.Effects;
 using Microsoft.Win32;
+using System;
+using System.Drawing;
+using System.Windows;
 using System.Windows.Media.Imaging;
+using Point = System.Drawing.Point;
 
 namespace LineDetection
 {
     public partial class HoughWindow : Window
     {
+        LineDetectionUtils utils = new LineDetectionUtils();
         public Image _Image { get; set; }
         public Bitmap BinarizedSobelBitmap { get; set; }
         public int tr;
-
+        
         public HoughWindow(Image inputImage)
         {
             InitializeComponent();
@@ -75,27 +72,26 @@ namespace LineDetection
 
             if (ImgSource.Source == null)
             {
-                ErrorMessage("Source Image is empty!");
+                utils.ErrorMessage("Source Image is empty!");
                 return false;
             }
             else if(trText == "Auto")
             {
-                // Auto threshold function
                 return true;
             }
             if (trText == null || trText == "")
             {
-                ErrorMessage("Threshold value must be filled!");
+                utils.ErrorMessage("Threshold value must be filled!");
                 return false;
             }
             else if (!int.TryParse(trText, out tr))
             {
-                ErrorMessage("Value of the threshold field must be an integer!");
+                utils.ErrorMessage("Value of the threshold field must be an integer!");
                 return false;
             }
             else if (trText.Length > 3)
             {
-                ErrorMessage("Threshold value cannot be longer than 3 digits!");
+                utils.ErrorMessage("Threshold value cannot be longer than 3 digits!");
                 return false;
             }
             return true;
@@ -128,14 +124,8 @@ namespace LineDetection
                     return tr;
                 };
             }
-            ErrorMessage("No lines found!");
+            utils.ErrorMessage("No lines found!");
             return 0;
-        }
-
-        public void ErrorMessage(string message)
-        {
-            MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            return;
         }
 
         #endregion

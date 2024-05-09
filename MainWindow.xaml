@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LineDetection"
         mc:Ignorable="d"
-        Title="Line Detection - Oskar Jabłoński" Height="125" Width="350">
+        Title="Line Detection - Oskar Jabłoński" Height="125" Width="375">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>

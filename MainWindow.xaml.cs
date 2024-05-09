@@ -5,12 +5,13 @@ namespace LineDetection
 {
     public partial class MainWindow : Window
     {
+        LineDetectionUtils utils = new LineDetectionUtils();
         public Image _Image { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
-            WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }
 
         private void mOpenEdgeDetection_Click(object sender, RoutedEventArgs e)
@@ -37,7 +38,7 @@ namespace LineDetection
 
                 if (_Image.GetBgrImage().Width > 1920 || _Image.GetBgrImage().Height > 1080)
                 {
-                    MessageBoxResult result = WarningMessage("It is unadvised to process pictures which resolution is bigger than 1920x1080 due to image processing time.\nDo you want to continue?");
+                    MessageBoxResult result = utils.WarningMessage("It is unadvised to process pictures with resolution bigger than 1920x1080 due to image processing time.\nDo you want to continue?");
                     if (result == MessageBoxResult.No) return;
                 }
 
@@ -46,25 +47,10 @@ namespace LineDetection
             }
         }
 
-        private void mInfo_Click(object sender, RoutedEventArgs e) //TODO
+        private void mInfo_Click(object sender, RoutedEventArgs e)
         {
-            //string messageBoxContent = @"Praca inżynierska - Odnajdywanie Linii na cyfrowych obrazach mikroskopowych
-
-            //                                        Autor: Oskar Jabłoński
-            //                                      Promotor: dr. inż. Łukasz Roszkowiak";
-            //        MessageBox.Show(messageBoxContent, "Info", MessageBoxButton.OK);
             InfoWindow info = new InfoWindow();
             info.Show();
         }
-
-        #region Utils
-
-        public MessageBoxResult WarningMessage(string message)
-        {
-            MessageBoxResult choice = MessageBox.Show(message, "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            return choice;
-        }
-
-        #endregion
     }
 }
