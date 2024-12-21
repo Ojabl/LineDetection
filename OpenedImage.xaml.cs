@@ -78,7 +78,31 @@ namespace LineDetection
 
         private void mCanny_Click(object sender, RoutedEventArgs e)
         {
-            this.imageCanvas.Source = _Image.ApplyCannyEdgeDetection().ToBitmapSource();
+            var result = MessageBox.Show("Canny edge detection relies on 2 thresholds, do you want to set them?\n\nChoosing \"No\" will result in automatic thresholds settings", "Canny Edge detection", MessageBoxButton.YesNo);
+
+            if(result == MessageBoxResult.Yes)
+            {
+                CannyWindow cannyWindow = new CannyWindow();
+                cannyWindow.ShowDialog();
+
+                if (cannyWindow.GetLowerThreshold() == 0 && cannyWindow.GetUpperThreshold() == 0)
+                {
+                    utils.ErrorMessage("Please set the thresholds if you want to use Canny Edge detection");
+                }
+                else
+                {
+                    this.imageCanvas.Source = _Image.ApplyCannyEdgeDetection(cannyWindow.GetLowerThreshold(), cannyWindow.GetUpperThreshold()).ToBitmapSource();
+                }
+            }
+            else
+            {
+                this.imageCanvas.Source = _Image.ApplyCannyEdgeDetectionAuto().ToBitmapSource();
+            }
+        }
+
+        public void ApplyCannyEdgeDetection(int lowThreshold, int highThreshold)
+        {
+            this.imageCanvas.Source = _Image.ApplyCannyEdgeDetection(lowThreshold, highThreshold).ToBitmapSource();
         }
 
         private void mSobel_Click(object sender, RoutedEventArgs e)

@@ -1,5 +1,9 @@
-﻿using Microsoft.Win32;
+﻿using Emgu.CV;
+using Emgu.CV.Structure;
+using Microsoft.Win32;
+using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Documents;
 
 namespace LineDetection
 {
@@ -38,8 +42,12 @@ namespace LineDetection
 
                 if (_Image.GetBgrImage().Width > 1920 || _Image.GetBgrImage().Height > 1080)
                 {
-                    MessageBoxResult result = utils.WarningMessage("It is unadvised to process pictures with resolution bigger than 1920x1080 due to image processing time.\nDo you want to continue?");
-                    if (result == MessageBoxResult.No) return;
+                    MessageBoxResult result = utils.WarningMessage("It is unadvised to process pictures with resolution bigger than 1920x1080 due to image processing time.\nShrink the image using the Gaussian pyramid?");
+                    if(result == MessageBoxResult.Yes)
+                    {
+                        GaussianPyramid(_Image.GetBgrImage());
+                    }
+                    else return;
                 }
 
                 HoughWindow houghWindow = new HoughWindow(_Image);
@@ -52,5 +60,21 @@ namespace LineDetection
             InfoWindow info = new InfoWindow();
             info.Show();
         }
+
+        #region Utils
+
+        private void GaussianPyramid(Image<Bgr,byte> image)
+        {
+            while (image.Width > 1920 || image.Height > 1080)
+            {
+                image = image.PyrDown();
+            }
+
+            _Image._bgrImage = image;
+
+            MessageBox.Show($"Image has been successfully shrunk.\nNew resolution of the image is {image.Width}x{image.Height}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        #endregion
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Emgu.CV;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Point = System.Drawing.Point;
@@ -46,20 +48,42 @@ namespace LineDetection
 
                 int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
                 Point size = new Point(180, dp);
+                HashSet<Point> detectedLines = new HashSet<Point>();
 
-                while (true)
+                try
                 {
-                    Point pt = _Image.SearchLine(size, tr);
-                    if(pt.X == -1) break;
-                    if(pt.X > 0)
+                    while (true)
                     {
-                        int y1 = (int)((-Math.Cos(pt.X * (Math.PI / 180)) / Math.Sin(pt.X * (Math.PI / 180))) * 0 + (double)pt.Y / Math.Sin(pt.X * (Math.PI / 180)));
+                        try 
+                        {
+                            Point testpt = _Image.SearchLine(size, tr, detectedLines);
+                            if (testpt.X == -1) break;
 
-                        int y2 = (int)((-Math.Cos(pt.X * (Math.PI / 180)) / Math.Sin(pt.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)pt.Y / Math.Sin(pt.X * (Math.PI / 180)));
-
-                        g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
+                            long y1 = (int)((-Math.Cos(testpt.X * (Math.PI / 180)) / Math.Sin(testpt.X * (Math.PI / 180))) * 0 + (double)testpt.Y / Math.Sin(testpt.X * (Math.PI / 180)));
+                            long y2 = (int)((-Math.Cos(testpt.X * (Math.PI / 180)) / Math.Sin(testpt.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)testpt.Y / Math.Sin(testpt.X * (Math.PI / 180)));
+                            g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
+                        }
+                        catch (Exception ex)
+                        {
+                            continue;
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    utils.WarningMessage("C# cannot handle so many lines!");
+                }
+                
+                //if (pt.X == -1) break;
+                //if (pt.X > 0)
+                //{
+                //    int y1 = (int)((-Math.Cos(pt.X * (Math.PI / 180)) / Math.Sin(pt.X * (Math.PI / 180))) * 0 + (double)pt.Y / Math.Sin(pt.X * (Math.PI / 180)));
+
+                //    int y2 = (int)((-Math.Cos(pt.X * (Math.PI / 180)) / Math.Sin(pt.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)pt.Y / Math.Sin(pt.X * (Math.PI / 180)));
+
+                //    g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
+                //}
+                //}
                 ImgResult.Source = img.ToMat().ToBitmapSource();
             }
         }
@@ -97,34 +121,42 @@ namespace LineDetection
             return true;
         }
 
-        public int AutoThreshold(Bitmap img, Graphics g, Pen pen)
+        public int AutoThreshold(Bitmap img, Graphics g, Pen pen, int lineCount = 10)
         {
-            int[] threshGroup = { 300, 275, 250, 225, 200, 175, 150, 125, 100, 75, 50 };
-
-            for(int i = 0; i < threshGroup.Length + 1; i++)
+            tr = 300;
+            HashSet<Point> detectedLines = new HashSet<Point>();
+            int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
+            Point size = new Point(180, dp);
+            
+            while (tr > 0)
             {
-                tr = threshGroup[i];
-                int lines = 0;
-
-                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
-                Point size = new Point(180, dp);
-
                 while (true)
                 {
-                    Point testpt = _Image.SearchLine(size, tr);
+                    Point testpt = _Image.SearchLine(size, tr, detectedLines);
                     if (testpt.X == -1) break;
-                    if (testpt.X > 0)
-                    {
-                        lines++;
-                    }
+
+                    int y1 = (int)((-Math.Cos(testpt.X * (Math.PI / 180)) / Math.Sin(testpt.X * (Math.PI / 180))) * 0 + (double)testpt.Y / Math.Sin(testpt.X * (Math.PI / 180)));
+                    int y2 = (int)((-Math.Cos(testpt.X * (Math.PI / 180)) / Math.Sin(testpt.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)testpt.Y / Math.Sin(testpt.X * (Math.PI / 180)));
+                    g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
                 }
-                if (lines > 10)
+
+                if (detectedLines.Count == lineCount)
                 {
                     TbTr.Text = tr.ToString();
                     return tr;
-                };
+                }
+                if (detectedLines.Count > lineCount)
+                {
+                    utils.Message($"Exactly {lineCount} lines cannot be found, showing {detectedLines.Count} lines.");
+                    TbTr.Text = tr.ToString();
+                    return tr;
+                }
+
+                ImgResult.Source = img.ToMat().ToBitmapSource();
+                tr -= 5;
             }
-            utils.ErrorMessage("No lines found!");
+
+            utils.ErrorMessage($"{lineCount} lines cannot be found!");
             return 0;
         }
 
@@ -167,5 +199,85 @@ namespace LineDetection
         }
 
         #endregion
+
+        #region Main lines detection
+
+        private void BtnOneLine_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsThresholdValid())
+            {
+                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
+
+                Bitmap img = _Image.GetBitmap();
+                Graphics g = Graphics.FromImage(img);
+                Pen pen = new Pen(Color.Red, 3);
+
+                AutoThreshold(img, g, pen, 1);
+
+                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
+                Point size = new Point(180, dp);
+
+                ImgResult.Source = img.ToMat().ToBitmapSource();
+            }
+        }
+
+        private void BtnTwoLines_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsThresholdValid())
+            {
+                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
+
+                Bitmap img = _Image.GetBitmap();
+                Graphics g = Graphics.FromImage(img);
+                Pen pen = new Pen(Color.Red, 3);
+
+                AutoThreshold(img, g, pen, 2);
+
+                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
+                Point size = new Point(180, dp);
+
+                ImgResult.Source = img.ToMat().ToBitmapSource();
+            }
+        }
+
+        private void BtnThreeLines_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsThresholdValid())
+            {
+                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
+
+                Bitmap img = _Image.GetBitmap();
+                Graphics g = Graphics.FromImage(img);
+                Pen pen = new Pen(Color.Red, 3);
+
+                AutoThreshold(img, g, pen, 3);
+
+                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
+                Point size = new Point(180, dp);
+
+                ImgResult.Source = img.ToMat().ToBitmapSource();
+            }
+        }
+
+        private void BtnFourLines_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsThresholdValid())
+            {
+                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
+
+                Bitmap img = _Image.GetBitmap();
+                Graphics g = Graphics.FromImage(img);
+                Pen pen = new Pen(Color.Red, 3);
+
+                AutoThreshold(img, g, pen, 4);
+
+                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
+                Point size = new Point(180, dp);
+
+                ImgResult.Source = img.ToMat().ToBitmapSource();
+            }
+        }
+
+        #endregion 
     }
 }

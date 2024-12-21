@@ -4,6 +4,7 @@ using Emgu.CV.Structure;
 
 using ScottPlot;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
@@ -92,16 +93,32 @@ namespace LineDetection
             return sobelXY.ToImage<Gray,byte>();
         }
 
-        public Image<Gray, byte> ApplyCannyEdgeDetection()
+        public Image<Gray, byte> ApplyCannyEdgeDetection(double lowerThreshold, double upperThreshold)
         {
             Mat image = _bgrImage.Mat;
             Mat gaussianBlur = new Mat();
             Mat cannyMat = new Mat();
 
-            CvInvoke.GaussianBlur(image, gaussianBlur, new Size(3,3), 5.0);
+            CvInvoke.GaussianBlur(image, gaussianBlur, new Size(3, 3), 5.0);
 
             var average = image.ToImage<Gray, byte>().GetAverage();
-            
+
+            CvInvoke.Canny(gaussianBlur, cannyMat, lowerThreshold, upperThreshold, 3);
+
+            _bgrImage = cannyMat.ToImage<Bgr, byte>();
+            return cannyMat.ToImage<Gray, byte>();
+        }
+
+        public Image<Gray, byte> ApplyCannyEdgeDetectionAuto()
+        {
+            Mat image = _bgrImage.Mat;
+            Mat gaussianBlur = new Mat();
+            Mat cannyMat = new Mat();
+
+            CvInvoke.GaussianBlur(image, gaussianBlur, new Size(3, 3), 5.0);
+
+            var average = image.ToImage<Gray, byte>().GetAverage();
+
             var lowerThreshold = Math.Max(0, (1.0 - 0.33) * average.Intensity);
             var upperThreshold = Math.Min(255, (1.0 + 0.33) * average.Intensity);
 
@@ -110,6 +127,7 @@ namespace LineDetection
             _bgrImage = cannyMat.ToImage<Bgr, byte>();
             return cannyMat.ToImage<Gray, byte>();
         }
+
 
         public Image<Gray,byte> ApplyPrewittEdgeDetection()
         {
@@ -263,16 +281,19 @@ namespace LineDetection
             }
         }
 
-        public Point SearchLine(Point size, int tr)
+        public Point SearchLine(Point size, int tr, HashSet<Point> detectedLines = null, int tolerance = 5)
         {
             int max = 0;
-            Point pt = new Point(0,0);
+            Point pt = new Point(-1,-1);
 
             for(int y = 0; y < size.Y; y++)
                 for(int x = 0; x < size.X; x++)
                 {
                     if (max < accum[y, x])
                     {
+                        if (detectedLines != null && detectedLines.Any(d => Math.Abs(d.X - x) < tolerance && Math.Abs(d.Y - y) < tolerance))
+                            continue;
+
                         max = accum[y, x];
                         pt.X = x; 
                         pt.Y = y;
@@ -280,7 +301,7 @@ namespace LineDetection
                 }
 
             if (max < tr) pt.X = -1;
-            else accum[pt.Y, pt.X] = 0;
+            else detectedLines?.Add(pt);
 
             return pt;
         }

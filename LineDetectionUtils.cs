@@ -15,5 +15,10 @@ namespace LineDetection
             MessageBoxResult choice = MessageBox.Show(message, "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             return choice;
         }
+
+        public void Message(string message)
+        {
+            MessageBox.Show(message, "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 }
