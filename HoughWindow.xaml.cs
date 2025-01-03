@@ -34,7 +34,7 @@ namespace LineDetection
         {
             if (IsThresholdValid())
             {
-                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
+                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr, 100, false).ToMat().ToBitmapSource();
 
                 Bitmap img = _Image.GetBitmap();
                 Graphics g = Graphics.FromImage(img);
@@ -74,16 +74,6 @@ namespace LineDetection
                     utils.WarningMessage("C# cannot handle so many lines!");
                 }
                 
-                //if (pt.X == -1) break;
-                //if (pt.X > 0)
-                //{
-                //    int y1 = (int)((-Math.Cos(pt.X * (Math.PI / 180)) / Math.Sin(pt.X * (Math.PI / 180))) * 0 + (double)pt.Y / Math.Sin(pt.X * (Math.PI / 180)));
-
-                //    int y2 = (int)((-Math.Cos(pt.X * (Math.PI / 180)) / Math.Sin(pt.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)pt.Y / Math.Sin(pt.X * (Math.PI / 180)));
-
-                //    g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
-                //}
-                //}
                 ImgResult.Source = img.ToMat().ToBitmapSource();
             }
         }
@@ -157,12 +147,13 @@ namespace LineDetection
             }
 
             utils.ErrorMessage($"{lineCount} lines cannot be found!");
+            
             return 0;
         }
 
         #endregion
 
-        #region save
+        #region Save and Clear
 
         private void BtnSaveAcum_Click(object sender, RoutedEventArgs e)
         {
@@ -198,6 +189,11 @@ namespace LineDetection
             }
         }
 
+        private void BtnClear_Click(object sender, RoutedEventArgs e)
+        {
+            ImgResult.Source = _Image.GetBgrImage().ToUMat().ToBitmapSource();
+        }
+
         #endregion
 
         #region Main lines detection
@@ -206,16 +202,27 @@ namespace LineDetection
         {
             if (IsThresholdValid())
             {
-                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
+                if (TbTr.Text == "Auto")
+                {
+                    utils.Message("Finding one, two, three or four lines cannot be used with 'Auto' threshold value.");
+                    return;
+                }
+
+                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr, 1).ToMat().ToBitmapSource();
 
                 Bitmap img = _Image.GetBitmap();
                 Graphics g = Graphics.FromImage(img);
                 Pen pen = new Pen(Color.Red, 3);
 
-                AutoThreshold(img, g, pen, 1);
+                List<Point> localMaxima = _Image.localMaxima;
 
-                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
-                Point size = new Point(180, dp);
+                foreach (Point p in localMaxima)
+                {
+                    int y1 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * 0 + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
+                    int y2 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
+
+                    g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
+                }
 
                 ImgResult.Source = img.ToMat().ToBitmapSource();
             }
@@ -223,18 +230,34 @@ namespace LineDetection
 
         private void BtnTwoLines_Click(object sender, RoutedEventArgs e)
         {
-            if (IsThresholdValid())
+            if(IsThresholdValid())
             {
-                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
+                if(TbTr.Text == "Auto")
+                {
+                    utils.Message("Finding one, two, three or four lines cannot be used with 'Auto' threshold value.");
+                    return;
+                }
+
+                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr, 2).ToMat().ToBitmapSource();
 
                 Bitmap img = _Image.GetBitmap();
                 Graphics g = Graphics.FromImage(img);
                 Pen pen = new Pen(Color.Red, 3);
 
-                AutoThreshold(img, g, pen, 2);
+                List<Point> localMaxima = _Image.localMaxima;
 
-                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
-                Point size = new Point(180, dp);
+                if(localMaxima.Count < 2)
+                {
+                    utils.Message($"2 local maximas cannot be found using provided threshold\ndecrease the threshold to find more local maximas.\nShowing {localMaxima.Count} local maximum.");
+                }
+
+                foreach(Point p in localMaxima)
+                {
+                    int y1 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * 0 + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
+                    int y2 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
+
+                    g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
+                }
 
                 ImgResult.Source = img.ToMat().ToBitmapSource();
             }
@@ -244,16 +267,32 @@ namespace LineDetection
         {
             if (IsThresholdValid())
             {
-                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
+                if (TbTr.Text == "Auto")
+                {
+                    utils.Message("Finding one, two, three or four lines cannot be used with 'Auto' threshold value.");
+                    return;
+                }
+
+                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr, 3).ToMat().ToBitmapSource();
 
                 Bitmap img = _Image.GetBitmap();
                 Graphics g = Graphics.FromImage(img);
                 Pen pen = new Pen(Color.Red, 3);
 
-                AutoThreshold(img, g, pen, 3);
+                List<Point> localMaxima = _Image.localMaxima;
 
-                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
-                Point size = new Point(180, dp);
+                if (localMaxima.Count < 3)
+                {
+                    utils.Message($"3 local maximas cannot be found using provided threshold\ndecrease the threshold to find more local maximas.\nShowing {localMaxima.Count} local maximum.");
+                }
+
+                foreach (Point p in localMaxima)
+                {
+                    int y1 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * 0 + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
+                    int y2 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
+
+                    g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
+                }
 
                 ImgResult.Source = img.ToMat().ToBitmapSource();
             }
@@ -263,21 +302,37 @@ namespace LineDetection
         {
             if (IsThresholdValid())
             {
-                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr).ToMat().ToBitmapSource();
+                if (TbTr.Text == "Auto")
+                {
+                    utils.Message("Finding one, two, three or four lines cannot be used with 'Auto' threshold value.");
+                    return;
+                }
+
+                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr, 4).ToMat().ToBitmapSource();
 
                 Bitmap img = _Image.GetBitmap();
                 Graphics g = Graphics.FromImage(img);
                 Pen pen = new Pen(Color.Red, 3);
 
-                AutoThreshold(img, g, pen, 4);
+                List<Point> localMaxima = _Image.localMaxima;
 
-                int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
-                Point size = new Point(180, dp);
+                if (localMaxima.Count < 4)
+                {
+                    utils.Message($"4 local maximas cannot be found using provided threshold\ndecrease the threshold to find more local maximas.\nShowing {localMaxima.Count} local maximum.");
+                }
+
+                foreach (Point p in localMaxima)
+                {
+                    int y1 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * 0 + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
+                    int y2 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
+
+                    g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
+                }
 
                 ImgResult.Source = img.ToMat().ToBitmapSource();
             }
         }
 
-        #endregion 
+        #endregion
     }
 }

@@ -18,10 +18,16 @@ namespace LineDetection
 
         public bool isGray = false;
 
+        LineDetectionUtils utils = new LineDetectionUtils();
+
+        public List<Point> localMaxima = new List<Point>();
+
         public Image(string path)
         {
             _bgrImage = new Image<Bgr, byte>(path);
             _bgrImagePath = path;
+
+            localMaxima = new List<Point>();
         }
 
         #region histogram
@@ -218,7 +224,7 @@ namespace LineDetection
                 }
         }
 
-        public Bitmap HoughTransform(Bitmap img, int tr)
+        public Bitmap HoughTransform(Bitmap img, int tr, int maximasToFind, bool showMaximas = true)
         {
             Point Size = new Point();
             int mang = 180;
@@ -228,28 +234,49 @@ namespace LineDetection
             accum = new int[(int)Size.Y, mang];
 
             double dt = Math.PI / 180.0;
+
             for(int y = 0; y < img.Height; y++)
                 for(int x = 0; x < img.Width; x++)
                     if(img.GetPixel(x,y).R == 255)
                     {
                         for(int i = 0; i < mang; i++)
                         {
-                            int row = (int)Math.Round(x * Math.Cos(dt * (double)i) + y * Math.Sin(dt * (double)i));
+                            int row = (int)Math.Round(x * Math.Cos(dt * i) + y * Math.Sin(dt * i));
                             if (row < Size.Y && row > 0) accum[row, i]++;
                         }
                     }
-            int amax = AccumMax(Size); 
+            int amax = AccumMax(Size);
+
+            if(showMaximas) localMaxima = FindLocalMaxima(Size, tr, maximasToFind);
 
             if(amax != 0)
             {
                 img = new Bitmap(Size.X, Size.Y);
                 Normalize(Size, amax);
+
                 for(int y = 0; y < Size.Y; y++)
                 {
                     for(int x = 0; x < Size.X; x++)
                     {
                         int c = accum[y, x];
                         img.SetPixel(x, y, Color.FromArgb(c, c, c));
+                    }
+                }
+
+                // zaznaczenie na czerwono znalezionych maksimów lokalnych na przestrzeni akumulatorów
+                if (showMaximas)
+                {
+                    using (Graphics g = Graphics.FromImage(img))
+                    {
+                        foreach (var max in localMaxima)
+                        {
+                            int squareSize = 5;
+
+                            int x = max.X - squareSize / 2;
+                            int y = max.Y - squareSize / 2;
+
+                            g.FillRectangle(Brushes.Red, x, y, squareSize / 2 + 1, squareSize);
+                        }
                     }
                 }
             }
@@ -304,6 +331,77 @@ namespace LineDetection
             else detectedLines?.Add(pt);
 
             return pt;
+        }
+
+        public List<Point> FindLocalMaxima(Point size, int threshold, int maximasToFind)
+        {
+            List<potentialMaximas> maxima = new List<potentialMaximas>();
+
+            for (int y = 1; y < size.Y - 1; y++)
+            {
+                for (int x = 1; x < size.X - 1; x++)
+                {
+                    int value = accum[y, x];
+
+                    // Sprawdzanie, czy wartość przekracza próg
+                    if (value < threshold) continue;
+
+                    // Sprawdzanie sąsiedztwa 5x5
+                    bool isLocalMax = true;
+                    for (int dy = -2; dy <= 2; dy++)
+                    {
+                        for (int dx = -2; dx <= 2; dx++)
+                        {
+                            if (dy == 0 && dx == 0) continue;
+                            try
+                            {
+                                if (accum[y + dy, x + dx] > value)
+                                {
+                                    isLocalMax = false;
+                                    break;
+                                }
+                            }
+                            catch(Exception ex)
+                            {
+                                break;
+                            }
+                            
+                        }
+                        if (!isLocalMax) break;
+                    }
+
+                    if (isLocalMax) maxima.Add(new potentialMaximas(value, new Point(x, y)));
+                    //if(maxima.Count == maximasToFind) return GetTopPoints(maxima, maximasToFind);
+                }
+            }
+
+            if(maxima.Count == 0) 
+            {
+                utils.Message("Local maxima were not found.\nLower the threshold to find them.");
+            }
+
+            return GetTopPoints(maxima, maximasToFind);
+        }
+
+        public class potentialMaximas
+        {
+            public int Value { get; set; }
+            public Point Point { get; set; }
+
+            public potentialMaximas(int value, Point point) 
+            { 
+                Value = value; 
+                Point = point;
+            }
+        }
+
+        public List<Point> GetTopPoints(List<potentialMaximas> maximas, int top)
+        {
+            return maximas
+                .OrderByDescending(m => m.Value)
+                .Take(top)
+                .Select(m => m.Point)
+                .ToList();
         }
 
         #endregion
