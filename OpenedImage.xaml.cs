@@ -66,12 +66,6 @@ namespace LineDetection
             _Image.isGray = true;
         }
 
-        private void mBgr_Click(object sender, RoutedEventArgs e)
-        {
-            this.imageCanvas.Source = _Image.GetBgrImage().ToBitmapSource();
-            _Image.isGray = false;
-        }
-
         #endregion
 
         #region Edge detection

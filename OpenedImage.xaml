@@ -10,10 +10,7 @@
         <Menu>
             <MenuItem Name="mSave" Header="Save..." Click="mSave_Click"/>
             <MenuItem Name="mClone" Header="Clone" Click="mClone_Click"/>
-            <MenuItem Header="Convert...">
-                <MenuItem Name="mGray" Header="to Gray" Click="mGray_Click"/>
-                <MenuItem Name="mBgr" Header="to Bgr" Click="mBgr_Click"/>
-            </MenuItem>
+            <MenuItem Name="mGray" Header="Convert to Gray" Click="mGray_Click"/>
             <MenuItem Name="mHistogram" Header="Histogram" Click="mHistogram_Click"/>
             <MenuItem Header="Edge detection...">
                 <MenuItem Name="mCanny" Header="Canny" Click="mCanny_Click"/>

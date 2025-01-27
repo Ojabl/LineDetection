@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media.Imaging;
 using Point = System.Drawing.Point;
 
@@ -35,6 +37,7 @@ namespace LineDetection
             if (IsThresholdValid())
             {
                 ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr, 100, false).ToMat().ToBitmapSource();
+                if (_Image.accum != null) BtnShowAccum.IsEnabled = true;
 
                 Bitmap img = _Image.GetBitmap();
                 Graphics g = Graphics.FromImage(img);
@@ -122,12 +125,19 @@ namespace LineDetection
             {
                 while (true)
                 {
-                    Point testpt = _Image.SearchLine(size, tr, detectedLines);
-                    if (testpt.X == -1) break;
+                    try
+                    {
+                        Point testpt = _Image.SearchLine(size, tr, detectedLines);
+                        if (testpt.X == -1) break;
 
-                    int y1 = (int)((-Math.Cos(testpt.X * (Math.PI / 180)) / Math.Sin(testpt.X * (Math.PI / 180))) * 0 + (double)testpt.Y / Math.Sin(testpt.X * (Math.PI / 180)));
-                    int y2 = (int)((-Math.Cos(testpt.X * (Math.PI / 180)) / Math.Sin(testpt.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)testpt.Y / Math.Sin(testpt.X * (Math.PI / 180)));
-                    g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
+                        int y1 = (int)((-Math.Cos(testpt.X * (Math.PI / 180)) / Math.Sin(testpt.X * (Math.PI / 180))) * 0 + (double)testpt.Y / Math.Sin(testpt.X * (Math.PI / 180)));
+                        int y2 = (int)((-Math.Cos(testpt.X * (Math.PI / 180)) / Math.Sin(testpt.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)testpt.Y / Math.Sin(testpt.X * (Math.PI / 180)));
+                        g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
+                    }
+                    catch(OverflowException ex)
+                    {
+                        continue;
+                    }
                 }
 
                 if (detectedLines.Count == lineCount)
@@ -191,6 +201,10 @@ namespace LineDetection
 
         private void BtnClear_Click(object sender, RoutedEventArgs e)
         {
+            //ponowne wygenerowanie przestrzeni akumulatorów obrazu
+            ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr, 100, false).ToMat().ToBitmapSource();
+
+            //ponowne pokazanie obrazu wynikowego bez narysowanych linii
             ImgResult.Source = _Image.GetBgrImage().ToUMat().ToBitmapSource();
         }
 
@@ -198,17 +212,29 @@ namespace LineDetection
 
         #region Main lines detection
 
-        private void BtnOneLine_Click(object sender, RoutedEventArgs e)
+        private void BtnMainLines_Click(object sender, RoutedEventArgs e)
         {
             if (IsThresholdValid())
             {
                 if (TbTr.Text == "Auto")
                 {
-                    utils.Message("Finding one, two, three or four lines cannot be used with 'Auto' threshold value.");
+                    utils.Message("Finding main lines cannot be used with 'Auto' threshold value.");
                     return;
                 }
 
-                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr, 1).ToMat().ToBitmapSource();
+                int maximasToFind = -1;
+
+                try
+                {
+                    maximasToFind = Convert.ToInt32(TxtMainLines.Text);
+                }
+                catch (Exception ex)
+                {
+                    utils.ErrorMessage("Number of main lines needs to be a number.");
+                    return;
+                }
+
+                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr, maximasToFind).ToMat().ToBitmapSource();
 
                 Bitmap img = _Image.GetBitmap();
                 Graphics g = Graphics.FromImage(img);
@@ -228,109 +254,57 @@ namespace LineDetection
             }
         }
 
-        private void BtnTwoLines_Click(object sender, RoutedEventArgs e)
+        #endregion
+
+        #region Show Accumulator
+
+        private void BtnShowAccum_Click(object sender, RoutedEventArgs e)
         {
-            if(IsThresholdValid())
+            // Tworzenie nowego okna
+            Window accumWindow = new Window
             {
-                if(TbTr.Text == "Auto")
-                {
-                    utils.Message("Finding one, two, three or four lines cannot be used with 'Auto' threshold value.");
-                    return;
-                }
+                Title = "Accumulator Values",
+                Width = 800, // Szerokość okna
+                Height = 600 // Wysokość okna
+            };
 
-                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr, 2).ToMat().ToBitmapSource();
-
-                Bitmap img = _Image.GetBitmap();
-                Graphics g = Graphics.FromImage(img);
-                Pen pen = new Pen(Color.Red, 3);
-
-                List<Point> localMaxima = _Image.localMaxima;
-
-                if(localMaxima.Count < 2)
-                {
-                    utils.Message($"2 local maximas cannot be found using provided threshold\ndecrease the threshold to find more local maximas.\nShowing {localMaxima.Count} local maximum.");
-                }
-
-                foreach(Point p in localMaxima)
-                {
-                    int y1 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * 0 + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
-                    int y2 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
-
-                    g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
-                }
-
-                ImgResult.Source = img.ToMat().ToBitmapSource();
-            }
-        }
-
-        private void BtnThreeLines_Click(object sender, RoutedEventArgs e)
-        {
-            if (IsThresholdValid())
+            // Tworzenie UniformGrid dla tabeli
+            UniformGrid uniformGrid = new UniformGrid
             {
-                if (TbTr.Text == "Auto")
-                {
-                    utils.Message("Finding one, two, three or four lines cannot be used with 'Auto' threshold value.");
-                    return;
-                }
+                Rows = _Image.accum.GetLength(0), // Liczba wierszy
+                Columns = _Image.accum.GetLength(1) // Liczba kolumn
+            };
 
-                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr, 3).ToMat().ToBitmapSource();
-
-                Bitmap img = _Image.GetBitmap();
-                Graphics g = Graphics.FromImage(img);
-                Pen pen = new Pen(Color.Red, 3);
-
-                List<Point> localMaxima = _Image.localMaxima;
-
-                if (localMaxima.Count < 3)
-                {
-                    utils.Message($"3 local maximas cannot be found using provided threshold\ndecrease the threshold to find more local maximas.\nShowing {localMaxima.Count} local maximum.");
-                }
-
-                foreach (Point p in localMaxima)
-                {
-                    int y1 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * 0 + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
-                    int y2 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
-
-                    g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
-                }
-
-                ImgResult.Source = img.ToMat().ToBitmapSource();
-            }
-        }
-
-        private void BtnFourLines_Click(object sender, RoutedEventArgs e)
-        {
-            if (IsThresholdValid())
+            // Wypełnianie UniformGrid wartościami z tablicy accum
+            for (int y = 0; y < _Image.accum.GetLength(0); y++)
             {
-                if (TbTr.Text == "Auto")
+                for (int x = 0; x < _Image.accum.GetLength(1); x++)
                 {
-                    utils.Message("Finding one, two, three or four lines cannot be used with 'Auto' threshold value.");
-                    return;
+                    TextBlock textBlock = new TextBlock
+                    {
+                        Text = _Image.accum[y, x].ToString(),
+                        Margin = new Thickness(5),
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        TextAlignment = TextAlignment.Center,
+                        Background = (x + y) % 2 == 0 ? System.Windows.Media.Brushes.LightGray : System.Windows.Media.Brushes.White
+                    };
+
+                    uniformGrid.Children.Add(textBlock);
                 }
-
-                ImgAccum.Source = _Image.HoughTransform(BinarizedSobelBitmap, tr, 4).ToMat().ToBitmapSource();
-
-                Bitmap img = _Image.GetBitmap();
-                Graphics g = Graphics.FromImage(img);
-                Pen pen = new Pen(Color.Red, 3);
-
-                List<Point> localMaxima = _Image.localMaxima;
-
-                if (localMaxima.Count < 4)
-                {
-                    utils.Message($"4 local maximas cannot be found using provided threshold\ndecrease the threshold to find more local maximas.\nShowing {localMaxima.Count} local maximum.");
-                }
-
-                foreach (Point p in localMaxima)
-                {
-                    int y1 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * 0 + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
-                    int y2 = (int)((-Math.Cos(p.X * (Math.PI / 180)) / Math.Sin(p.X * (Math.PI / 180))) * _Image.GetBgrImage().Width + (double)p.Y / Math.Sin(p.X * (Math.PI / 180)));
-
-                    g.DrawLine(pen, 0, y1, _Image.GetBgrImage().Width, y2);
-                }
-
-                ImgResult.Source = img.ToMat().ToBitmapSource();
             }
+
+            // Dodanie UniformGrid do okna
+            ScrollViewer scrollViewer = new ScrollViewer
+            {
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Content = uniformGrid
+            };
+            accumWindow.Content = scrollViewer;
+
+            // Wyświetlenie okna
+            accumWindow.ShowDialog();
         }
 
         #endregion

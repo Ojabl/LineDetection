@@ -6,6 +6,7 @@ using ScottPlot;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 
 namespace LineDetection
@@ -230,10 +231,10 @@ namespace LineDetection
             int mang = 180;
 
             Size.Y = (int)Math.Round(Math.Sqrt(Math.Pow(img.Width, 2) + Math.Pow(img.Height, 2)));
-            Size.X = 180;
-            accum = new int[(int)Size.Y, mang];
+            Size.X = mang;
+            accum = new int[(int)Size.Y, Size.X];
 
-            double dt = Math.PI / 180.0;
+            double dt = Math.PI / mang;
 
             for(int y = 0; y < img.Height; y++)
                 for(int x = 0; x < img.Width; x++)
@@ -247,7 +248,24 @@ namespace LineDetection
                     }
             int amax = AccumMax(Size);
 
-            if(showMaximas) localMaxima = FindLocalMaxima(Size, tr, maximasToFind);
+            //TEST - do usunięcia
+            using (StreamWriter writer = new StreamWriter("C:\\Users\\osaja\\Desktop\\test.txt"))
+            {
+                int rows = accum.GetLength(0);
+                int cols = accum.GetLength(1);
+
+                for (int i = 0; i < rows; i++)
+                {
+                    string[] rowValues = new string[cols];
+                    for (int j = 0; j < cols; j++)
+                    {
+                        rowValues[j] = accum[i, j].ToString();
+                    }
+                    writer.WriteLine(string.Join(",", rowValues));
+                }
+            }
+
+            if (showMaximas) localMaxima = FindLocalMaxima(Size, tr, maximasToFind);
 
             if(amax != 0)
             {
@@ -378,6 +396,11 @@ namespace LineDetection
             if(maxima.Count == 0) 
             {
                 utils.Message("Local maxima were not found.\nLower the threshold to find them.");
+            }
+
+            if(maxima.Count < maximasToFind)
+            {
+                utils.Message($"{maximasToFind} local maximas were not found.\nFound {maxima.Count} local maximas.\nLower the threshold to find more local maximas");
             }
 
             return GetTopPoints(maxima, maximasToFind);

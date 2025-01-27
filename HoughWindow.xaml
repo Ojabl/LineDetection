@@ -24,13 +24,13 @@
         </Grid>
 
         <Grid Name="centerMenuGrid" Grid.Column="1" Height="35" Margin="0,10,0,0" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <Button x:Name="BtnOneLine" Click="BtnOneLine_Click" Content="One Line" Margin="1,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" Width="70"/>
-            <Button x:Name="BtnTwoLines" Click="BtnTwoLines_Click" Content="Two Lines" Margin="76,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" Width="70"/>
-            <Button x:Name="BtnThreeLines" Click="BtnThreeLines_Click" Content="Three Lines" Margin="151,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" Width="70"/>
-            <Button x:Name="BtnFourLines" Click="BtnFourLines_Click" Content="Four Lines" Margin="226,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" Width="70"/>
+            <!--<Button x:Name="BtnOneLine" Click="BtnOneLine_Click" Content="One Line" Margin="1,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" Width="70"/>-->
+            <Button x:Name="BtnMainLines" Click="BtnMainLines_Click" Margin="1,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" Width="70" Content="Find"/>
+            <TextBox x:Name="TxtMainLines" Margin="76,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" Width="50" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
+            <Label x:Name="LblMainLines" Margin="131,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">main lines</Label>
         </Grid>
 
-        <Grid Name="rightsideMenuGrid" Grid.Column="2" Margin="0,22,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Width="306">
+        <Grid Name="rightsideMenuGrid" Grid.Column="2" Margin="0,10,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Width="306">
             <Button x:Name="BtnSaveAcum" Content="Save accumulators" VerticalAlignment="Center" Height="35" Margin="73,0,124,0" Click="BtnSaveAcum_Click"/>
             <Button x:Name="BtnSaveImg" Content="Save image" VerticalAlignment="Center" Height="35" Margin="187,0,10,0" Click="BtnSaveImg_Click"/>
             <Button x:Name="BtnClear" Content="Clear" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Height="35" Width="42" Click="BtnClear_Click"/>
@@ -44,13 +44,12 @@
         <Border BorderThickness="1" BorderBrush="Black" Grid.Row="1" Grid.Column="1" Margin="15,15,15,50">
             <Image Name="ImgAccum" Grid.Row="1" Grid.Column="1" Stretch="Fill"/>
         </Border>
-        <Label Name="LbAccum" Content="Accumulators" Grid.Row="1" Grid.Column="1" Width="90" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,0,0,15"/>
+        <Label x:Name="LbAccum" Content="Accumulators" Width="90" Height="30" HorizontalAlignment="Left" Margin="15,0,0,15" Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom"/>
+        <Button x:Name="BtnShowAccum" Content="Show accumulators" Height="30" Width="115" Click="BtnShowAccum_Click" Margin="0,0,15,15" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" IsEnabled="False"/>
 
         <Border BorderThickness="1" BorderBrush="Black" Grid.Row="1" Grid.Column="2" Margin="15,15,15,50">
             <Image Name="ImgResult" Grid.Row="1" Grid.Column="2" Stretch="Fill"/>
         </Border>
         <Label Name="LbResult" Content="Result" Grid.Row="1" Grid.Column="2" Width="75" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,0,0,15"/>
-
-
     </Grid>
 </Window>
