@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LineDetection"
         mc:Ignorable="d"
-        Title="XXX - ERROR - XXX" Height="500" Width="1000" MinHeight="450" MinWidth="1000">
+        Title="XXX - ERROR - XXX" Height="625" Width="1250" MinHeight="450" MinWidth="1000">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
@@ -27,7 +27,9 @@
             <!--<Button x:Name="BtnOneLine" Click="BtnOneLine_Click" Content="One Line" Margin="1,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" Width="70"/>-->
             <Button x:Name="BtnMainLines" Click="BtnMainLines_Click" Margin="1,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" Width="70" Content="Find"/>
             <TextBox x:Name="TxtMainLines" Margin="76,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" Width="50" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
-            <Label x:Name="LblMainLines" Margin="131,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">main lines</Label>
+            <Label x:Name="LblMainLines" Margin="131,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">main lines with</Label>
+            <TextBox x:Name="TxtTolerance" Margin="225,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="35" Width="30" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Text="5"/>
+            <Label x:Name="LblTolerance" Margin="265,0,0,0" Content="Tolerance" Width="70" Height="35" HorizontalAlignment="Left" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
         </Grid>
 
         <Grid Name="rightsideMenuGrid" Grid.Column="2" Margin="0,10,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Width="306">

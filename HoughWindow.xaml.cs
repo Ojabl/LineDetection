@@ -18,6 +18,7 @@ namespace LineDetection
         public Image _Image { get; set; }
         public Bitmap BinarizedSobelBitmap { get; set; }
         public int tr;
+        public int tolerance;
         
         public HoughWindow(Image inputImage)
         {
@@ -55,11 +56,21 @@ namespace LineDetection
 
                 try
                 {
+                    try
+                    {
+                        tolerance = Int32.Parse(TxtTolerance.Text);
+                    }
+                    catch(Exception ex)
+                    {
+                        utils.ErrorMessage("Tolerance value must be filled with a natural number!");
+                        return;
+                    }
+
                     while (true)
                     {
                         try 
                         {
-                            Point testpt = _Image.SearchLine(size, tr, detectedLines);
+                            Point testpt = _Image.SearchLine(size, tr, detectedLines, tolerance);
                             if (testpt.X == -1) break;
 
                             long y1 = (int)((-Math.Cos(testpt.X * (Math.PI / 180)) / Math.Sin(testpt.X * (Math.PI / 180))) * 0 + (double)testpt.Y / Math.Sin(testpt.X * (Math.PI / 180)));
@@ -116,6 +127,16 @@ namespace LineDetection
 
         public int AutoThreshold(Bitmap img, Graphics g, Pen pen, int lineCount = 10)
         {
+            try
+            {
+                tolerance = Int32.Parse(TxtTolerance.Text);
+            }
+            catch (Exception ex)
+            {
+                utils.ErrorMessage("Tolerance value must be filled with a natural number!");
+                return 0 ;
+            }
+
             tr = 300;
             HashSet<Point> detectedLines = new HashSet<Point>();
             int dp = (int)Math.Round(Math.Sqrt(Math.Pow(_Image.GetBgrImage().Width, 2) + Math.Pow(_Image.GetBgrImage().Height, 2)));
@@ -127,7 +148,7 @@ namespace LineDetection
                 {
                     try
                     {
-                        Point testpt = _Image.SearchLine(size, tr, detectedLines);
+                        Point testpt = _Image.SearchLine(size, tr, detectedLines, tolerance);
                         if (testpt.X == -1) break;
 
                         int y1 = (int)((-Math.Cos(testpt.X * (Math.PI / 180)) / Math.Sin(testpt.X * (Math.PI / 180))) * 0 + (double)testpt.Y / Math.Sin(testpt.X * (Math.PI / 180)));
@@ -260,6 +281,16 @@ namespace LineDetection
 
         private void BtnShowAccum_Click(object sender, RoutedEventArgs e)
         {
+            if(_Image.accum.GetLength(0) > 200)
+            {
+                MessageBoxResult decision = utils.WarningMessage($"Table of accumulators of this image is really big {_Image.accum.GetLength(0)}x{_Image.accum.GetLength(1)}\nAre you sure you want to create such a big table?");
+                
+                if(decision == MessageBoxResult.No)
+                {
+                    return;
+                }
+            }
+
             // Tworzenie nowego okna
             Window accumWindow = new Window
             {
@@ -268,44 +299,54 @@ namespace LineDetection
                 Height = 600 // Wysokość okna
             };
 
-            // Tworzenie UniformGrid dla tabeli
-            UniformGrid uniformGrid = new UniformGrid
+            // Tworzenie DataGrid
+            DataGrid dataGrid = new DataGrid
             {
-                Rows = _Image.accum.GetLength(0), // Liczba wierszy
-                Columns = _Image.accum.GetLength(1) // Liczba kolumn
+                AutoGenerateColumns = false,
+                CanUserAddRows = false,
+                HeadersVisibility = DataGridHeadersVisibility.None, // Ukrywanie nagłówków kolumn
+                IsReadOnly = true
             };
 
-            // Wypełnianie UniformGrid wartościami z tablicy accum
-            for (int y = 0; y < _Image.accum.GetLength(0); y++)
+            // Dodanie kolumn do DataGrid
+            int columns = _Image.accum.GetLength(1);
+            for (int i = 0; i < columns; i++)
             {
-                for (int x = 0; x < _Image.accum.GetLength(1); x++)
+                dataGrid.Columns.Add(new DataGridTextColumn
                 {
-                    TextBlock textBlock = new TextBlock
-                    {
-                        Text = _Image.accum[y, x].ToString(),
-                        Margin = new Thickness(5),
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        TextAlignment = TextAlignment.Center,
-                        Background = (x + y) % 2 == 0 ? System.Windows.Media.Brushes.LightGray : System.Windows.Media.Brushes.White
-                    };
-
-                    uniformGrid.Children.Add(textBlock);
-                }
+                    Header = $"Col {i}",
+                    Binding = new System.Windows.Data.Binding($"[{i}]"),
+                    Width = new DataGridLength(1, DataGridLengthUnitType.Star)
+                });
             }
 
-            // Dodanie UniformGrid do okna
+            // Dodanie wierszy do DataGrid
+            int rows = _Image.accum.GetLength(0);
+            for (int y = 0; y < rows; y++)
+            {
+                var row = new int[columns];
+                for (int x = 0; x < columns; x++)
+                {
+                    row[x] = _Image.accum[y, x];
+                }
+                dataGrid.Items.Add(row);
+            }
+
+            // Dodanie DataGrid do ScrollViewer dla przewijania
             ScrollViewer scrollViewer = new ScrollViewer
             {
                 HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                Content = uniformGrid
+                Content = dataGrid
             };
+
+            // Ustawienie zawartości okna
             accumWindow.Content = scrollViewer;
 
             // Wyświetlenie okna
             accumWindow.ShowDialog();
         }
+
 
         #endregion
     }
