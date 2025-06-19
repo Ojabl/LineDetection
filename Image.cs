@@ -249,21 +249,21 @@ namespace LineDetection
             int amax = AccumMax(Size);
 
             //TEST - do usunięcia
-            using (StreamWriter writer = new StreamWriter("C:\\Users\\osaja\\Desktop\\test.txt"))
-            {
-                int rows = accum.GetLength(0);
-                int cols = accum.GetLength(1);
+            //using (StreamWriter writer = new StreamWriter("C:\\Users\\osaja\\Desktop\\test.txt"))
+            //{
+            //    int rows = accum.GetLength(0);
+            //    int cols = accum.GetLength(1);
 
-                for (int i = 0; i < rows; i++)
-                {
-                    string[] rowValues = new string[cols];
-                    for (int j = 0; j < cols; j++)
-                    {
-                        rowValues[j] = accum[i, j].ToString();
-                    }
-                    writer.WriteLine(string.Join(",", rowValues));
-                }
-            }
+            //    for (int i = 0; i < rows; i++)
+            //    {
+            //        string[] rowValues = new string[cols];
+            //        for (int j = 0; j < cols; j++)
+            //        {
+            //            rowValues[j] = accum[i, j].ToString();
+            //        }
+            //        writer.WriteLine(string.Join(",", rowValues));
+            //    }
+            //}
 
             if (showMaximas) localMaxima = FindLocalMaxima(Size, tr, maximasToFind);
 
